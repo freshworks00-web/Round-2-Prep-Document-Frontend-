@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Round 2 Interview Prep</title>
+<style>
+  :root{
+    --bg:#0A0E12;
+    --panel:#11161C;
+    --panel-2:#161C24;
+    --line:#232B34;
+    --text:#E7ECF1;
+    --muted:#8593A3;
+    --teal:#2FD9C4;
+    --teal-dim:#173B37;
+    --violet:#9B8CFF;
+    --violet-dim:#231F42;
+    --amber:#E8B04B;
+    --danger:#E8654B;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--sans);}
+  body{
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(47,217,196,0.06), transparent 40%),
+      radial-gradient(circle at 85% 100%, rgba(155,140,255,0.06), transparent 40%);
+    min-height:100vh;
+    padding:28px 16px 60px;
+  }
+  .wrap{max-width:880px;margin:0 auto;}
+
+  .top{margin-bottom:22px;}
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--teal); margin-bottom:8px; display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow::before{content:"●"; font-size:8px;}
+  h1{font-size:26px; margin:0 0 6px; font-weight:700; letter-spacing:-0.01em;}
+  .sub{color:var(--muted); font-size:14px; margin:0;}
+
+  .scorebar{
+    display:flex; gap:10px; margin:20px 0 24px; flex-wrap:wrap;
+  }
+  .score-chip{
+    flex:1; min-width:130px; background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px;
+  }
+  .score-chip .n{font-family:var(--mono); font-size:20px; font-weight:700; color:var(--teal);}
+  .score-chip .l{font-size:11px; color:var(--muted); margin-top:2px;}
+
+  .tabs{display:flex; gap:6px; margin-bottom:18px; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:0;}
+  .tab{
+    font-family:var(--mono); font-size:12.5px; padding:9px 14px; border-radius:8px 8px 0 0;
+    background:transparent; color:var(--muted); border:1px solid transparent; cursor:pointer;
+    transition:all .15s ease;
+  }
+  .tab:hover{color:var(--text);}
+  .tab.active{color:var(--teal); background:var(--panel); border-color:var(--line); border-bottom-color:var(--panel);}
+  .tab .wt{color:var(--amber); margin-left:5px; font-size:11px;}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px;
+    margin-bottom:14px; transition:border-color .15s ease;
+  }
+  .card:hover{border-color:#2c3742;}
+  .qrow{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; cursor:pointer;}
+  .qnum{font-family:var(--mono); font-size:12px; font-weight:700; flex-shrink:0; margin-top:2px;}
+  .qnum.theory{color:var(--teal);}
+  .qnum.coding{color:#4ADE80;}
+  .typefilter{display:flex; gap:8px; margin-bottom:16px;}
+  .tf-btn{
+    font-family:var(--mono); font-size:11.5px; padding:7px 14px; border-radius:7px; cursor:pointer;
+    border:1px solid var(--line); background:var(--panel-2); color:var(--muted); transition:all .15s ease;
+  }
+  .tf-btn.active.all{color:var(--text); border-color:#4b5563; background:#1b2229;}
+  .tf-btn.active.theory{color:var(--teal); border-color:var(--teal); background:var(--teal-dim);}
+  .tf-btn.active.coding{color:#4ADE80; border-color:#4ADE80; background:#123a20;}
+  .card.hidden{display:none;}
+  .qtext{font-size:15px; font-weight:600; line-height:1.45; flex:1;}
+  .chevron{color:var(--muted); font-size:13px; transition:transform .2s ease; flex-shrink:0; margin-top:3px;}
+  .card.open .chevron{transform:rotate(90deg); color:var(--teal);}
+
+  .why{
+    display:none; margin-top:12px; padding-top:12px; border-top:1px solid var(--line);
+    font-size:13.5px; color:var(--muted); line-height:1.55;
+  }
+  .card.open .why{display:block;}
+  .why b{color:var(--text);}
+
+  .bridge{
+    display:none; margin-top:10px; padding:10px 12px; border-radius:8px;
+    background:var(--violet-dim); border:1px solid #35306a; font-size:13px; color:#cfc8ff; line-height:1.5;
+  }
+  .card.open .bridge{display:block;}
+  .bridge b{color:var(--violet);}
+
+  .markrow{display:none; gap:8px; margin-top:12px;}
+  .card.open .markrow{display:flex;}
+  .mark{
+    font-family:var(--mono); font-size:11.5px; padding:6px 12px; border-radius:6px; cursor:pointer;
+    border:1px solid var(--line); background:var(--panel-2); color:var(--muted); transition:all .15s ease;
+  }
+  .mark:hover{border-color:var(--teal);}
+  .mark.got.active{background:var(--teal-dim); color:var(--teal); border-color:var(--teal);}
+  .mark.miss.active{background:#3a1f1a; color:var(--danger); border-color:var(--danger);}
+
+  .card.status-got{border-left:3px solid var(--teal);}
+  .card.status-miss{border-left:3px solid var(--danger);}
+
+  .weight-tag{
+    font-family:var(--mono); font-size:10px; color:var(--amber); background:#2a2214; border:1px solid #4a3a1a;
+    border-radius:5px; padding:2px 6px; white-space:nowrap; margin-top:2px;
+  }
+
+  .checklist{list-style:none; padding:0; margin:0;}
+  .checklist li{
+    display:flex; align-items:flex-start; gap:10px; padding:11px 4px; border-bottom:1px solid var(--line);
+    font-size:14px; cursor:pointer; color:var(--text);
+  }
+  .checklist li:last-child{border-bottom:none;}
+  .checklist .box{
+    width:16px; height:16px; border:1.5px solid var(--muted); border-radius:4px; flex-shrink:0; margin-top:2px;
+    display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--bg); transition:all .15s ease;
+  }
+  .checklist li.done .box{background:var(--teal); border-color:var(--teal);}
+  .checklist li.done .box::after{content:"✓";}
+  .checklist li.done span{color:var(--muted); text-decoration:line-through;}
+
+  .footer-note{margin-top:26px; font-size:12px; color:var(--muted); text-align:center; font-family:var(--mono);}
+
+  .ov-section{margin-bottom:26px;}
+  .ov-h{font-size:16px; font-weight:700; color:var(--text); margin:0 0 10px;}
+  .ov-p{font-size:14px; color:var(--muted); line-height:1.6; margin:0 0 12px;}
+  .ov-list{list-style:none; padding:0; margin:0 0 4px;}
+  .ov-list li{
+    position:relative; padding-left:18px; margin-bottom:9px; font-size:13.5px; color:var(--text); line-height:1.55;
+  }
+  .ov-list li::before{content:"—"; position:absolute; left:0; color:var(--teal);}
+  .ov-table{width:100%; border-collapse:collapse; margin-bottom:10px; font-size:13.5px;}
+  .ov-table th{
+    text-align:left; background:var(--panel-2); color:var(--teal); font-family:var(--mono); font-size:11px;
+    text-transform:uppercase; letter-spacing:.04em; padding:8px 12px; border:1px solid var(--line);
+  }
+  .ov-table td{padding:9px 12px; border:1px solid var(--line); color:var(--text); vertical-align:top;}
+  .ov-note{
+    font-size:12.5px; color:var(--muted); font-style:italic; line-height:1.6; margin:10px 0 0;
+    border-left:2px solid var(--line); padding-left:10px;
+  }
+  .ov-note.warn{border-left-color:var(--amber); color:#c9a869;}
+  .reset{
+    background:none; border:1px solid var(--line); color:var(--muted); font-family:var(--mono); font-size:11px;
+    padding:6px 12px; border-radius:6px; cursor:pointer; margin-top:14px;
+  }
+  .reset:hover{color:var(--danger); border-color:var(--danger);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="eyebrow">Round 2 · Frontend Fundamentals</div>
+    <h1>Round 2 Practice</h1>
+    <p class="sub">Lead Software Engineer, Full Stack · Backend-heavy profile bridging into a frontend round</p>
+  </div>
+
+  <div class="scorebar" id="scorebar">
+    <div class="score-chip"><div class="n" id="gotCount">0</div><div class="l">Confident (got it)</div></div>
+    <div class="score-chip"><div class="n" id="missCount">0</div><div class="l">Needs another pass</div></div>
+    <div class="score-chip"><div class="n" id="pctCount">0%</div><div class="l">Reviewed</div></div>
+  </div>
+
+  <div style="background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:8px;padding:12px 14px;margin-bottom:22px;font-size:13px;color:var(--muted);line-height:1.55;">
+    <b style="color:var(--amber);">Pattern from recent rounds:</b> when time runs short, interviewers tend to compress or skip CSS first, in favor of JS fundamentals, a JS problem-solving question (increasingly concurrency-flavored), and a hands-on UI build — recently a fuller "dashboard" task rather than a bare component. Keep CSS sharp, but weight extra practice time toward JS + one complete build exercise.
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="panels"></div>
+
+  <button class="reset" onclick="resetAll()">Reset all progress</button>
+  <div class="footer-note">49 practice questions (theory + coding) · weighted to the R2 scoring rubric (2 / 1 / 1 / 1)</div>
+</div>
+
+<script>
+const DATA = [
+  {
+    key: "htmlcss", label: "HTML/CSS", weight: "2 pt",
+    theory: [
+      { q: "Standard box model vs border-box — why do most resets set box-sizing: border-box?", a: "Standard adds padding/border on top of width; border-box includes them inside it, making width predictable — hence the near-universal reset." },
+      { q: "Explain CSS specificity and cascade order.", a: "Inline > ID > class/attribute/pseudo-class > element, with !important overriding all, and source order as the final tiebreaker." },
+      { q: "position: static vs relative vs absolute vs fixed vs sticky.", a: "Static = normal flow. Relative = offsets but keeps its space. Absolute = removed from flow, positioned against nearest positioned ancestor. Fixed = against viewport. Sticky = toggles relative/fixed on scroll." },
+      { q: "When do you reach for Flexbox vs Grid?", a: "Flexbox is one-dimensional (a row or column); Grid is two-dimensional — better for full page/layout structure defined in both rows and columns at once." },
+      { q: "Pseudo-classes vs pseudo-elements — what's the difference?", a: "Pseudo-classes (:hover, :nth-child) target a state of a real element; pseudo-elements (::before, ::after) create/target a sub-part that isn't a real DOM node." },
+      { q: "What is a BFC (Block Formatting Context)?", a: "An independent layout region — contents don't affect layout outside it. Commonly invoked to contain floats or prevent margin collapse (overflow: hidden, display: flow-root)." },
+      { q: "Explain z-index and stacking contexts.", a: "z-index only applies to positioned elements and is scoped to the nearest stacking context — a high z-index in a child context can still render below a lower one in a sibling context." },
+      { q: "px vs em vs rem vs vh/vw — when do you use each?", a: "px is fixed; em is relative to the parent (compounds with nesting); rem is relative to the root (predictable, preferred for typography); vh/vw are relative to viewport, useful for full-bleed sections." },
+    ],
+    coding: [
+      { q: "Build a tooltip using a single HTML element, no JavaScript.", a: "Asked verbatim in a prior round. Use a data-attribute plus ::after/::before and :hover to reveal it — pure CSS." },
+      { q: "Build a responsive 3-column layout that collapses to 1 column on mobile.", a: "CSS Grid with repeat(3, 1fr), then a media query at a mobile breakpoint switching to repeat(1, 1fr)." },
+      { q: "Center a div both horizontally and vertically — two different methods.", a: "Flexbox parent with justify-content/align-items: center. Or absolute positioning with top/left: 50% + transform: translate(-50%, -50%)." },
+      { q: "Build a CSS-only accordion (no JS).", a: "Hidden checkbox/radio input + label, with sibling selectors (+ or ~) toggling max-height/display on the content block." },
+      { q: "Truncate long text with an ellipsis after a fixed number of lines.", a: "Single line: white-space: nowrap + overflow: hidden + text-overflow: ellipsis. Multi-line: -webkit-line-clamp with display: -webkit-box." },
+    ]
+  },
+  {
+    key: "jscore", label: "JS Core & Closures", weight: "1 pt",
+    theory: [
+      { q: "What is a closure?", a: "A function that retains access to variables from its enclosing scope even after that outer function has returned." },
+      { q: "Prototypal inheritance in JS vs classical inheritance in Java/Go.", a: "Objects inherit directly from other objects via the prototype chain — a live, runtime-modifiable lookup chain, not a compile-time class hierarchy.", bridge: "Draw this Java/Go comparison herself, unprompted — it signals depth over memorized syntax." },
+      { q: "The event loop — microtasks vs macrotasks.", a: "JS is single-threaded; microtasks (Promises) always run before the next macrotask (setTimeout), even if the macrotask was queued first." },
+      { q: "var vs let vs const — scoping and hoisting differences.", a: "var is function-scoped, hoisted as undefined; let/const are block-scoped, hoisted into a temporal dead zone; const disallows reassigning the binding." },
+      { q: "How does `this` differ in arrow functions vs regular functions?", a: "Regular functions get `this` bound dynamically by call-site; arrow functions inherit `this` lexically from their enclosing scope." },
+      { q: "== vs === — what's happening under the hood?", a: "=== compares value+type with no coercion; == coerces types first, leading to surprises like '' == 0 being true." },
+      { q: "What causes memory leaks in JS, and how would you spot one?", a: "Forgotten listeners/timers, closures retaining large scopes, detached DOM nodes still referenced — spotted via DevTools heap snapshots." },
+    ],
+    coding: [
+      { q: "Write a function to flatten a deeply nested array of arbitrary depth.", a: "Asked verbatim previously. Practice a recursive solution, then mention Array.prototype.flat(Infinity) as the built-in equivalent." },
+      { q: "Write a counter function using a closure.", a: "Return functions from an outer function that increment/read a variable held in the outer scope." },
+      { q: "Implement debounce and throttle from scratch.", a: "Debounce: reset a setTimeout on every call. Throttle: track a lastRun timestamp, skip calls until X ms have passed." },
+      { q: "Re-implement Array.prototype.map or .filter using a for-loop or reduce.", a: "Iterate, apply the callback, push into a new result array — shows you know what the built-ins actually do." },
+      { q: "Write a deep clone function for a nested object.", a: "Recursively copy properties, checking typeof for objects/arrays; mention structuredClone() and JSON parse/stringify caveats." },
+      { q: "Implement a simple memoize() higher-order function.", a: "Wrap a function, cache results in a Map keyed by stringified args, return cached value on repeat calls." },
+      { q: "Find all pairs in an array that sum to a target value (two-sum).", a: "Single pass with a hash set: check if (target - number) was already seen — O(n) instead of naive O(n²)." },
+      { q: "Implement a concurrency-limited task runner: run N async tasks with only K running at a time.", a: "The 'promise pool' problem. Track in-flight promises; as each resolves, pull the next task off a queue until the queue is empty. Also be ready to contrast Promise.all vs Promise.allSettled and why unbounded concurrency can overwhelm a downstream API." },
+    ]
+  },
+  {
+    key: "react", label: "React / Framework", weight: "1 pt",
+    theory: [
+      { q: "Explain the Virtual DOM and why React uses it.", a: "React diffs an in-memory tree against the previous version on state changes and applies only the minimal real DOM updates needed." },
+      { q: "useEffect vs useLayoutEffect.", a: "useEffect runs async after paint; useLayoutEffect runs sync before paint — needed when you must measure/mutate the DOM before the user sees a flicker." },
+      { q: "Reconciliation/diffing and the role of `key` in lists.", a: "React compares old/new virtual trees element by element; `key` gives list items stable identity so React detects moves/inserts/deletes instead of re-rendering everything." },
+      { q: "Controlled vs uncontrolled components.", a: "Controlled: value driven by React state via onChange. Uncontrolled: DOM manages its own state, accessed via refs when needed." },
+      { q: "Lift state up vs Context vs a state library — how do you decide?", a: "Lift state for small, localized sharing between siblings. Context for state many components need but that changes rarely. A state library for large, frequently-updated state needing middleware/devtools.", bridge: "If you come from a backend/systems background, this maps directly to those instincts — frame it like an architecture trade-off, not React trivia." },
+      { q: "What problem do useMemo and useCallback solve?", a: "Both prevent unnecessary recomputation/re-creation across renders — mainly useful to avoid breaking React.memo on children or re-running expensive calculations." },
+      { q: "Why and when would you write a custom hook?", a: "To extract and reuse stateful logic across components without duplicating code or resorting to render-props/HOCs." },
+    ],
+    coding: [
+      { q: "Build a simple counter component using useState.", a: "A button incrementing/decrementing state, re-rendering the displayed count." },
+      { q: "Build a Todo Dashboard: add/remove/toggle, filter by status, and a live count summary.", a: "Some interviewers give a fuller 'dashboard' build instead of a bare todo list. Keep {id, text, done} as the state shape and derive the filtered view + counts with .filter()/.length — don't store filtered lists as separate state." },
+      { q: "Write a custom useDebounce hook for a search input.", a: "useState + useEffect: set a timeout on each value change to update a 'debounced' value, clearing the previous timeout each keystroke." },
+      { q: "Fetch data in useEffect and handle loading/error/success states.", a: "Track {loading, error, data} in state; fetch inside useEffect with cleanup/abort to avoid setting state after unmount." },
+    ]
+  },
+  {
+    key: "opt", label: "Testing / Security / A11y", weight: "1 pt",
+    theory: [
+      { q: "What are XSS and CSRF? How do you defend against each?", a: "XSS injects scripts via unsanitized input — defend with output escaping + CSP. CSRF tricks a logged-in browser into unwanted requests — defend with CSRF tokens + SameSite cookies." },
+      { q: "Unit vs integration vs E2E testing.", a: "Unit: one function/component in isolation. Integration: several units together. E2E: drives the real app through a browser for full user flows." },
+      { q: "Accessibility (a11y) basics to check on a form.", a: "Every input has an associated label, ARIA roles/attrs only where semantic HTML falls short, and a logical keyboard tab order with visible focus." },
+      { q: "What is CORS and why does the browser enforce it?", a: "A browser security mechanism blocking cross-origin requests unless the target server explicitly allows it — protects users from malicious cross-site reads." },
+      { q: "Three techniques to optimize a slow-loading page.", a: "Code splitting/lazy loading, image optimization (compression, responsive formats, lazy load offscreen), memoization/virtualization to cut unnecessary renders.", bridge: "If you have production-support or observability experience, connect it here — that background already thinks in latency and bottlenecks." },
+      { q: "What is Content Security Policy (CSP)?", a: "A response header restricting which sources scripts/styles/resources can load from — a strong secondary defense against XSS." },
+    ],
+    coding: [
+      { q: "Outline an E2E test for a login form.", a: "Visit the page, fill fields, submit, assert redirect or error message — name a real tool: Cypress, Playwright, or Jest + RTL." },
+      { q: "Write a unit test for a pure function (e.g. the array-flatten function) using Jest.", a: "describe/it blocks with expect(...).toEqual(...) covering a normal case, an empty array, and a deeply nested edge case." },
+      { q: "Given a form missing labels and ARIA roles, fix it for accessibility.", a: "Associate every input with a label via htmlFor/id, add aria-describedby for help/error text, don't suppress the focus outline." },
+      { q: "Describe how you'd implement list virtualization for a 10,000-row table.", a: "Only render DOM nodes for rows in the visible viewport plus a small buffer, recycling nodes on scroll — the idea behind react-window." },
+    ]
+  }
+];
+
+const CHECKLIST = [
+  "Practice the tooltip-with-one-HTML-element exercise until it's muscle memory",
+  "Write the array-flatten function from scratch (recursive) at least twice",
+  "Refresh: closures, event loop, CSS specificity, flexbox/grid basics",
+  "Have one named E2E testing tool and one accessibility check ready to cite",
+  "Prepare one spoken sentence bridging backend experience to each architecture question",
+  "Remember: think aloud if stuck — receptiveness to hints is explicitly scored"
+];
+
+let state = {};
+try { state = JSON.parse(sessionStorage.getItem("r2state") || "{}"); } catch(e) { state = {}; }
+let checklistState = {};
+try { checklistState = JSON.parse(sessionStorage.getItem("r2checklist") || "{}"); } catch(e) { checklistState = {}; }
+
+function save(){
+  try {
+    sessionStorage.setItem("r2state", JSON.stringify(state));
+    sessionStorage.setItem("r2checklist", JSON.stringify(checklistState));
+  } catch(e) {}
+}
+
+function cardId(catKey, type, idx){ return catKey + "-" + type + "-" + idx; }
+
+let typeFilter = "all";
+
+function buildCard(cat, type, item, qi) {
+  const id = cardId(cat.key, type, qi);
+  const st = state[id];
+  const label = type === "theory" ? ("T" + (qi+1)) : ("C" + (qi+1));
+  const card = document.createElement("div");
+  card.className = "card type-" + type + (st === "got" ? " status-got" : st === "miss" ? " status-miss" : "");
+  card.dataset.id = id;
+  card.dataset.type = type;
+  card.innerHTML = `
+    <div class="qrow" onclick="toggleCard('${id}')">
+      <div class="qnum ${type}">${label}</div>
+      <div class="qtext">${item.q}</div>
+      <div class="chevron">▸</div>
+    </div>
+    <div class="why"><b>${type === "theory" ? "Answer:" : "Approach:"}</b> ${item.a}</div>
+    ${item.bridge ? `<div class="bridge"><b>Backend bridge:</b> ${item.bridge}</div>` : ""}
+    <div class="markrow">
+      <div class="mark got ${st === "got" ? "active" : ""}" onclick="event.stopPropagation(); mark('${id}','got')">✓ Got it</div>
+      <div class="mark miss ${st === "miss" ? "active" : ""}" onclick="event.stopPropagation(); mark('${id}','miss')">↻ Review again</div>
+    </div>
+  `;
+  return card;
+}
+
+function render(){
+  const tabsEl = document.getElementById("tabs");
+  const panelsEl = document.getElementById("panels");
+  tabsEl.innerHTML = "";
+  panelsEl.innerHTML = "";
+
+  const ovTab = document.createElement("button");
+  ovTab.className = "tab active";
+  ovTab.textContent = "Overview";
+  ovTab.dataset.idx = "overview";
+  ovTab.onclick = () => switchTab("overview");
+  tabsEl.appendChild(ovTab);
+
+  const ovPanel = document.createElement("div");
+  ovPanel.className = "panel active";
+  ovPanel.dataset.idx = "overview";
+  ovPanel.innerHTML = `
+    <div class="ov-section">
+      <div class="ov-h">Why This Round Matters</div>
+      <p class="ov-p">If your background is backend-heavy and this round evaluates frontend fundamentals, that mismatch is exactly why this prep exists. A few things worth keeping in mind going in:</p>
+      <ul class="ov-list">
+        <li>This round is not testing whether you're a frontend specialist. It's testing whether you can be trusted with the "Full Stack" in the title — enough HTML/CSS/JS fluency to ship a UI, debug it, and reason about it.</li>
+        <li>If React, HTML5, and CSS3 are already on your resume, you have exposure. This round checks depth, not novelty.</li>
+        <li>Candidates who do well tend to lean on core JS reasoning (closures, async, prototypes) even when CSS specifics are rusty — that combination is enough to pass strongly.</li>
+      </ul>
+    </div>
+
+    <div class="ov-section">
+      <div class="ov-h">Round Format</div>
+      <table class="ov-table">
+        <tr><th>Aspect</th><th>Detail</th></tr>
+        <tr><td>Duration</td><td>~5 min intro, then live technical assessment</td></tr>
+        <tr><td>Skills assessed</td><td>HTML/CSS/JS, JS frameworks, frontend prototyping, UI optimization &amp; accessibility</td></tr>
+        <tr><td>Language</td><td>JavaScript (or your choice, but JS is the expected default)</td></tr>
+        <tr><td>Style</td><td>Interviewer notes receptiveness to hints — getting stuck isn't fatal, how you recover is watched</td></tr>
+      </table>
+    </div>
+
+    <div class="ov-section">
+      <div class="ov-h">Scoring Breakdown</div>
+      <table class="ov-table">
+        <tr><th>Area</th><th>Weight</th></tr>
+        <tr><td>HTML, CSS, JS fundamentals</td><td>2 points — the single biggest chunk. Prioritize this.</td></tr>
+        <tr><td>UI prototyping, CSS properties, closures</td><td>1 point</td></tr>
+        <tr><td>JS framework concepts</td><td>1 point</td></tr>
+        <tr><td>UI optimization, E2E testing, accessibility, security</td><td>1 point</td></tr>
+      </table>
+      <div class="ov-note">2 of 5 points are pure fundamentals. If time is limited, drill HTML/CSS/JS basics and closures hardest — that's 3 of 5 points and squarely within reach.</div>
+      <div class="ov-note warn">Pattern from recent rounds: when the session runs long, CSS is often the first thing interviewers compress or skip, in favor of JS fundamentals, a JS problem-solving question (increasingly concurrency-flavored — e.g. a bounded task runner), and a hands-on UI build (recently a fuller "dashboard" with filtering/summary counts rather than a bare component). Don't skip CSS prep, but don't over-index on it either.</div>
+    </div>
+
+    <div class="ov-section">
+      <div class="ov-h">Backend Strength Is an Asset — Not a Liability</div>
+      <p class="ov-p">Actively bridge, rather than downplay, backend depth in this round. Interviewers give real credit for this:</p>
+      <ul class="ov-list">
+        <li>GraphQL/Node.js experience → strong instincts on data-fetching patterns, caching, and API contract design that a purely frontend candidate often lacks.</li>
+        <li>Microservices/system design background → the "lift state up vs. context vs. state library" question is really a mini system-design question. Answer it like one.</li>
+        <li>Production support & observability experience → directly answers the UI optimization / monitoring angle of the scoring rubric.</li>
+        <li>Prototypal inheritance question → an easy opening to contrast JS with Go/Java, showing depth rather than memorized syntax.</li>
+      </ul>
+    </div>
+  `;
+  panelsEl.appendChild(ovPanel);
+
+  DATA.forEach((cat, ci) => {
+    const tab = document.createElement("button");
+    tab.className = "tab";
+    tab.innerHTML = cat.label + '<span class="wt">' + cat.weight + '</span>';
+    tab.onclick = () => switchTab(ci);
+    tab.dataset.idx = ci;
+    tabsEl.appendChild(tab);
+
+    const panel = document.createElement("div");
+    panel.className = "panel";
+    panel.dataset.idx = ci;
+
+    const filterRow = document.createElement("div");
+    filterRow.className = "typefilter";
+    filterRow.innerHTML = `
+      <div class="tf-btn all ${typeFilter === "all" ? "active" : ""}" onclick="setFilter('all')">All</div>
+      <div class="tf-btn theory ${typeFilter === "theory" ? "active" : ""}" onclick="setFilter('theory')">Theory</div>
+      <div class="tf-btn coding ${typeFilter === "coding" ? "active" : ""}" onclick="setFilter('coding')">Coding</div>
+    `;
+    panel.appendChild(filterRow);
+
+    cat.theory.forEach((item, qi) => {
+      const card = buildCard(cat, "theory", item, qi);
+      if (typeFilter !== "all" && typeFilter !== "theory") card.classList.add("hidden");
+      panel.appendChild(card);
+    });
+    cat.coding.forEach((item, qi) => {
+      const card = buildCard(cat, "coding", item, qi);
+      if (typeFilter !== "all" && typeFilter !== "coding") card.classList.add("hidden");
+      panel.appendChild(card);
+    });
+
+    panelsEl.appendChild(panel);
+  });
+
+  const clWrap = document.createElement("div");
+  clWrap.className = "panel";
+  clWrap.dataset.idx = "checklist";
+  const clTitle = document.createElement("div");
+  clTitle.style.cssText = "font-size:14px;color:var(--muted);margin-bottom:10px;font-family:var(--mono)";
+  clTitle.textContent = "Day-before checklist";
+  clWrap.appendChild(clTitle);
+  const ul = document.createElement("ul");
+  ul.className = "checklist";
+  CHECKLIST.forEach((text, i) => {
+    const li = document.createElement("li");
+    li.className = checklistState[i] ? "done" : "";
+    li.onclick = () => toggleChecklist(i);
+    li.innerHTML = `<div class="box"></div><span>${text}</span>`;
+    ul.appendChild(li);
+  });
+  clWrap.appendChild(ul);
+  panelsEl.appendChild(clWrap);
+
+  const clTab = document.createElement("button");
+  clTab.className = "tab";
+  clTab.textContent = "Checklist";
+  clTab.dataset.idx = "checklist";
+  clTab.onclick = () => switchTab("checklist");
+  tabsEl.appendChild(clTab);
+
+  updateScorebar();
+}
+
+function switchTab(idx){
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", String(t.dataset.idx) === String(idx)));
+  document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", String(p.dataset.idx) === String(idx)));
+}
+
+function toggleCard(id){
+  const card = document.querySelector('.card[data-id="' + id + '"]');
+  card.classList.toggle("open");
+}
+
+function mark(id, val){
+  state[id] = state[id] === val ? undefined : val;
+  save();
+  render();
+  const openCard = document.querySelector('.card[data-id="' + id + '"]');
+  if (openCard) openCard.classList.add("open");
+}
+
+function toggleChecklist(i){
+  checklistState[i] = !checklistState[i];
+  save();
+  const activeIdx = document.querySelector(".tab.active").dataset.idx;
+  render();
+  switchTab(activeIdx);
+}
+
+function setFilter(type){
+  typeFilter = type;
+  const activeIdx = document.querySelector(".tab.active").dataset.idx;
+  render();
+  switchTab(activeIdx);
+}
+
+function updateScorebar(){
+  let got = 0, miss = 0, total = 0;
+  DATA.forEach(cat => {
+    ["theory", "coding"].forEach(type => {
+      cat[type].forEach((q, qi) => {
+        total++;
+        const id = cardId(cat.key, type, qi);
+        if (state[id] === "got") got++;
+        if (state[id] === "miss") miss++;
+      });
+    });
+  });
+  document.getElementById("gotCount").textContent = got;
+  document.getElementById("missCount").textContent = miss;
+  document.getElementById("pctCount").textContent = Math.round(((got+miss)/total)*100) + "%";
+}
+
+function resetAll(){
+  state = {};
+  checklistState = {};
+  save();
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
